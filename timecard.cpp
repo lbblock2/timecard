@@ -2,29 +2,28 @@
  */
 #include <stdio.h>
 #include <time.h>
-#include <iostream.h>
-#include <istream.h>
-#include <fstream.h>
-#include <string.h>
-#include <vector.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 using namespace std;
 
 #define kNumMonths 12
-#define kMaxLine 256
+#define kMaxFileLine 32
 
 
 
 
-class timecard
+class Timecard
 {
 public:
-	timecard(string filename) : numNewEntries = 0 {
-		fp = fopen(filename, "r+");
+	Timecard(char filename[]) : numNewEntries(0) {
+		fp.open(filename, fstream::in | fstream::out);
 		string line;
 
 	}
 
-	~timecard(){ fclose(fp) }
+	~Timecard(){ fp.close(); }
 
 	void showHelp() {
 		cout << "Open" << endl;
@@ -53,8 +52,13 @@ public:
 	}
 
 	// void saveFile() {
+	//	string entystr;
 	// 	for(int i = 0; i < entries.size(); i++) {\
+	//		Entry enty = entires[i];
 	// 		//print to file
+	//		entystr = "e||" + enty.date + "||" + enty.startTime + "||"
+	//							+ enty.endTime + "||" + enty.task + "||" + enty.notes;
+	// 		fp << entrystr;
 	// 	}
 	// }
 
@@ -83,16 +87,34 @@ public:
 private:
 
 	struct Entry{
-		time_t startTime;
-		time_t endTime;
+		string startTime;
+		string endTime;
+		string date;
 		string task;
 		string notes;
 		double totalTime;
 	};
 
-	FILE *fp;
+
+	string getYear(string year) {
+		string fileLine;
+		while(getline(fp, fileLine)) {
+			if (fileLine == "y" + year) return fileLine;
+		}
+		return NULL;
+	}
+
+	// Entry getEntry(string date) {
+	// 	string month = date.substr(0, 2);
+	// 	string day = date.substr(3, 2);
+	// 	string year = date.substr(6);
+	// 	string yearln = getYear(year);
+	// }
+
+
+	fstream fp;
 	int numNewEntries;
-	vector<Entry> entries(numNewEntries);
+	vector<Entry> entries;
 	double grandTotal;
 	double wage;
 
@@ -104,10 +126,9 @@ int main() {
 	struct tm *	now = localtime(&initTime);
 	int currYear = now->tm_year + 1900;
 	int currMonth = now->tm_mon + 1;
-	cout << "Welcome to Timecard!" << endl;
-	string filename;
-	cout << "Timecard Filenmae: ";
-	cin >> filename;
+	cout << "Welcome to Timecard!" << endl << "Timecard Filename: ";
+	char filename[kMaxFileLine];
+	cin.getline(filename, kMaxFileLine);
 	Timecard card(filename);
 	std::string command;
 	int quitSignal = 1;
