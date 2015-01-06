@@ -10,6 +10,7 @@ using namespace std;
 
 #define kNumMonths 12
 #define kMaxFileLine 32
+#define kMaxLine 64
 
 
 
@@ -19,8 +20,17 @@ class Timecard
 public:
 	Timecard(char filename[]) : numNewEntries(0) {
 		fp.open(filename, fstream::in | fstream::out);
-		string line;
-
+		if (!fp) {
+			ofstream out(filename);
+			string wage;
+			cout << "Wage: ";
+			cin >> wage;
+			out << wage << endl;
+			out.close();
+			fp.open(filename, fstream::in | fstream::out);
+		}
+		// string line;
+		// getline(fp, line);
 	}
 
 	~Timecard(){ fp.close(); }
@@ -39,28 +49,41 @@ public:
 
 	void addEntry(){
 		Entry enty;
-		cout << "Start time: ";
+		cout << "Date (mm/dd/yyyy): ";
+		cin >> enty.date;
+		cout << "Start time (hh:mm): ";
 		cin >> enty.startTime;
-		cout << "End time: ";
+		cout << "End time (hh:mm): ";
 		cin >> enty.endTime;
 		cout << "Task: ";
 		getline(cin, enty.task);
+		cout << "Notes: ";
 		getline(cin, enty.notes);
-		entries.resize(entries.size() + 1);
+		entries.resize(numNewEntries + 1);
 		entries[numNewEntries++] = enty;
-		cout << "entry added!" << endl;
+		cout << "entry added! Now " << numNewEntries << "added." << endl;
 	}
 
-	// void saveFile() {
-	//	string entystr;
-	// 	for(int i = 0; i < entries.size(); i++) {\
-	//		Entry enty = entires[i];
-	// 		//print to file
-	//		entystr = "e||" + enty.date + "||" + enty.startTime + "||"
-	//							+ enty.endTime + "||" + enty.task + "||" + enty.notes;
-	// 		fp << entrystr;
-	// 	}
-	// }
+	void saveFile() {
+		string entystr;
+		for(int i = 0; i < entries.size(); i++) {\
+			Entry enty = entries[i];
+			//print to file
+			entystr = "e||" + enty.date + "||" + enty.startTime + "||"
+								+ enty.endTime + "||" + enty.task + "||" + enty.notes;
+			fp.seekp(0, fstream::end);
+			fp << entystr;
+			// fp << endl;
+		}
+	}
+
+	void viewFile() {
+		string line;
+		fp.seekg(0, fstream::beg);
+		while(getline(fp, line)) {
+			cout << line << endl;
+		}
+	}
 
 	void actOnCommand(std::string command, int *quitSignal) {
 		char cmnd = tolower(command[0]);
@@ -72,11 +95,15 @@ public:
 			case 'a':
 				addEntry();
 				break;
-			// case 'v':
+			case 'v':
+				viewFile();
+				break;
 			// case 'e':
 			// case 'd':
-			// case 's':
-				case 'q':
+			case 's':
+				saveFile();
+				break;
+			case 'q':
 				*quitSignal = 0;
 				break;
 			default:
@@ -104,12 +131,59 @@ private:
 		return NULL;
 	}
 
-	// Entry getEntry(string date) {
-	// 	string month = date.substr(0, 2);
-	// 	string day = date.substr(3, 2);
-	// 	string year = date.substr(6);
-	// 	string yearln = getYear(year);
+	int getItemPos(string itemVar, string item, int categoryPos) {
+		string fileLine;
+		fp.seekg(categoryPos, ios::beg);
+		while (getline(fp, fileLine)) {
+			if (fileLine == itemVar + item) return fp.tellg();
+		}
+		return 0;
+	}
+
+
+	// int getYearPos(string year) {
+	// 	string fileLine;
+	// 	while(getline(fp, fileLine)) {
+	// 		if (fileLine == "y" + year) return fp.tellg();
+	// 	}
+	// 	return 0;
 	// }
+
+	// int getMonthPos(string month, int yearPos) {
+	// 	string fileLine;
+	// 	fp.seekg(yearPos, ios::beg);
+	// 	while(getline(fp, fileLine)) {
+	// 		if (fileLine == "m" + month) return fp.tellg();
+	// 	}
+	// 	return 0;
+	// }
+
+	// int getEntryPos(string day, int monthPos) {
+	// 	string fileLine;
+	// 	fp.seekg()
+	// }
+
+	Entry *readEntry(int entyPos) {
+		Entry *enty;
+		string entyLine;
+		fp.seekg(entyPos, ios::beg);
+		getline(fp, entyLine);
+		return enty;
+	}
+
+	Entry *getEntry(string date) {
+		Entry enty;
+		string month = date.substr(0, 2);
+		string day = date.substr(3, 2);
+		string year = date.substr(6);
+		int yearPos = getItemPos("y", year, 0);
+		if (yearPos == 0) return NULL;
+		int monthPos = getItemPos("m", month, yearPos);
+		if (monthPos == 0) return NULL;
+		int entyPos = getItemPos("e", day, monthPos);
+		if (entyPos == 0) return NULL;
+		return readEntry(entyPos);
+	}
 
 
 	fstream fp;
