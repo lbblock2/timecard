@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -11,6 +12,12 @@ using namespace std;
 #define kNumMonths 12
 #define kMaxFileLine 32
 #define kMaxLine 64
+#define kDateWidth 12
+#define kSTimeWidth 6
+#define kETimeWidth 6
+#define kTaskWidth 16
+#define kNotesWidth 16
+#define kSeparator ' '
 
 
 
@@ -69,22 +76,35 @@ public:
 		cout << "entry added! Now " << numNewEntries << " added." << endl;
 	}
 
+
+	template<typename T> void printElem(T t, int width) {
+		fp << left << setw(width) << setfill(' ') << t;
+	}
+
 	void saveFile() {
 		string entystr;
 		if (numNewEntries == 0) return;
 		for(int i = 0; i < numNewEntries; i++) {
 			Entry enty = entries[i];
 			//print to file
-			entystr = "e||" + enty.date + "||" + enty.startTime + "||"
-								+ enty.endTime + "||" + enty.task + "||" + enty.notes;
+			// entystr = "e  " + enty.date + "  " + enty.startTime + "  "
+			// 					+ enty.endTime + "  " + enty.task + "  " + enty.notes;
 			fp.clear();
 			fp.seekp(0, ios::end);
-			fp << entystr << endl;
+			// fp << entystr << endl;
+			printElem("e", 2);
+			printElem(enty.date, kDateWidth);
+			printElem(enty.startTime, kSTimeWidth);
+			printElem(enty.endTime, kETimeWidth);
+			printElem(enty.task, kTaskWidth);
+			printElem(enty.notes, kNotesWidth);
+			fp << endl; 
 			fp.clear();
 		}
 		entries.clear();
 		numNewEntries = 0;
 	}
+
 
 	void viewFile() {
 		string line;
