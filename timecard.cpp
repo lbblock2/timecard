@@ -19,7 +19,7 @@ class Timecard
 {
 public:
 	Timecard(char filename[]) : numNewEntries(0) {
-		fp.open(filename, fstream::in | fstream::out);
+		fp.open(filename, ios::in | ios::out);
 		if (!fp) {
 			ofstream out(filename);
 			string wage;
@@ -27,8 +27,10 @@ public:
 			cin >> wage;
 			out << wage << endl;
 			out.close();
-			fp.open(filename, fstream::in | fstream::out);
+			fp.open(filename, ios::in | ios::out);
 		}
+		begin = fp.tellg();
+		cout << begin << endl;
 		// string line;
 		// getline(fp, line);
 	}
@@ -36,6 +38,7 @@ public:
 	~Timecard(){ fp.close(); }
 
 	void showHelp() {
+		cout << "Available commands:" << endl;
 		cout << "Open" << endl;
 		cout << "Add" << endl;
 		cout << "View" << endl;
@@ -56,34 +59,44 @@ public:
 		cout << "End time (hh:mm): ";
 		cin >> enty.endTime;
 		cout << "Task: ";
-		getline(cin, enty.task);
+		// getline(cin, enty.task);
+		cin >> enty.task;
 		cout << "Notes: ";
-		getline(cin, enty.notes);
+		cin >> enty.notes;
+		// getline(cin, enty.notes);
 		entries.resize(numNewEntries + 1);
 		entries[numNewEntries++] = enty;
-		cout << "entry added! Now " << numNewEntries << "added." << endl;
+		cout << "entry added! Now " << numNewEntries << " added." << endl;
 	}
 
 	void saveFile() {
 		string entystr;
-		for(int i = 0; i < entries.size(); i++) {\
+		if (numNewEntries == 0) return;
+		for(int i = 0; i < numNewEntries; i++) {
 			Entry enty = entries[i];
 			//print to file
 			entystr = "e||" + enty.date + "||" + enty.startTime + "||"
 								+ enty.endTime + "||" + enty.task + "||" + enty.notes;
-			fp.seekp(0, fstream::end);
-			fp << entystr;
-			// fp << endl;
+			fp.clear();
+			fp.seekp(0, ios::end);
+			fp << entystr << endl;
+			fp.clear();
 		}
+		entries.clear();
+		numNewEntries = 0;
 	}
 
 	void viewFile() {
 		string line;
-		fp.seekg(0, fstream::beg);
-		while(getline(fp, line)) {
+		fp.seekg(begin);
+		fp.clear();
+		while(!fp.eof()) {
+			fp >> line;
 			cout << line << endl;
 		}
+		fp.seekg(begin);
 	}
+
 
 	void actOnCommand(std::string command, int *quitSignal) {
 		char cmnd = tolower(command[0]);
@@ -123,13 +136,13 @@ private:
 	};
 
 
-	string getYear(string year) {
-		string fileLine;
-		while(getline(fp, fileLine)) {
-			if (fileLine == "y" + year) return fileLine;
-		}
-		return NULL;
-	}
+	// string getYear(string year) {
+	// 	string fileLine;
+	// 	while(getline(fp, fileLine)) {
+	// 		if (fileLine == "y" + year) return fileLine;
+	// 	}
+	// 	return NULL;
+	// }
 
 	int getItemPos(string itemVar, string item, int categoryPos) {
 		string fileLine;
@@ -140,28 +153,6 @@ private:
 		return 0;
 	}
 
-
-	// int getYearPos(string year) {
-	// 	string fileLine;
-	// 	while(getline(fp, fileLine)) {
-	// 		if (fileLine == "y" + year) return fp.tellg();
-	// 	}
-	// 	return 0;
-	// }
-
-	// int getMonthPos(string month, int yearPos) {
-	// 	string fileLine;
-	// 	fp.seekg(yearPos, ios::beg);
-	// 	while(getline(fp, fileLine)) {
-	// 		if (fileLine == "m" + month) return fp.tellg();
-	// 	}
-	// 	return 0;
-	// }
-
-	// int getEntryPos(string day, int monthPos) {
-	// 	string fileLine;
-	// 	fp.seekg()
-	// }
 
 	Entry *readEntry(int entyPos) {
 		Entry *enty;
@@ -187,10 +178,16 @@ private:
 
 
 	fstream fp;
+	
 	int numNewEntries;
+	
 	vector<Entry> entries;
+	
 	double grandTotal;
+	
 	double wage;
+
+	streampos begin;
 
 };
 
