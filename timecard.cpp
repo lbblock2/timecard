@@ -37,7 +37,6 @@ public:
 			fp.open(filename, ios::in | ios::out);
 		}
 		begin = fp.tellg();
-		cout << begin << endl;
 		// string line;
 		// getline(fp, line);
 	}
@@ -66,11 +65,11 @@ public:
 		cout << "End time (hh:mm): ";
 		cin >> enty.endTime;
 		cout << "Task: ";
-		// getline(cin, enty.task);
-		cin >> enty.task;
+		getline(cin, enty.task);
+		// cin >> enty.task;
 		cout << "Notes: ";
-		cin >> enty.notes;
-		// getline(cin, enty.notes);
+		// cin >> enty.notes;
+		getline(cin, enty.notes);
 		entries.resize(numNewEntries + 1);
 		entries[numNewEntries++] = enty;
 		cout << "entry added! Now " << numNewEntries << " added." << endl;
@@ -106,13 +105,27 @@ public:
 	}
 
 
+	// void parsePrintEnty(string entyLine) {
+	// 	Entry enty;
+	// 	enty.date = entyLine.substr(3, 10);
+	// 	enty.startTime = entyLine.substr(15, 5);
+	// 	enty.endTime = entyLine.substr(21, 5);
+	// 	enty.task = entyLine.substr(27, 16);
+	// 	enty.notes = entyLine.substr(43, 16);
+	// 	enty.printEnty();
+	// }
+
 	void viewFile() {
 		string line;
 		fp.seekg(begin);
 		fp.clear();
 		while(!fp.eof()) {
-			fp >> line;
-			cout << line << endl;
+			getline(fp, line);
+			if (fp.eof()) break;
+			string line2 = line.substr(2);
+			cout << line2 << endl;
+			// line = line.substr(3);
+			// cout << line << endl;
 		}
 		fp.seekg(begin);
 	}
@@ -146,7 +159,23 @@ public:
 
 private:
 
+	
+
 	struct Entry{
+		
+		// template<typename T> void coutElem(T t, int width) {
+		// 	cout << left << setw(width) << setfill(' ') << t;
+		// }
+		
+		// void printEnty() {
+		// 	coutElem(date, kDateWidth);
+		// 	coutElem(startTime, kSTimeWidth);
+		// 	coutElem(endTime, kETimeWidth);
+		// 	coutElem(task, kTaskWidth);
+		// 	coutElem(notes, kNotesWidth);
+		// 	cout << endl;
+		// }
+
 		string startTime;
 		string endTime;
 		string date;
