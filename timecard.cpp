@@ -65,8 +65,9 @@ public:
 		cout << "End time (hh:mm): ";
 		cin >> enty.endTime;
 		cout << "Task: ";
-		string ln = enty.task;
-		getline(std::cin, ln);
+		std::cin.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
+
+		getline(std::cin, enty.task);
 		// cin >> enty.task;
 		cout << "Notes: ";
 		// cin >> enty.notes;
