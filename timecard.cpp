@@ -13,8 +13,8 @@ using namespace std;
 #define kMaxFileLine 32
 #define kMaxLine 64
 #define kDateWidth 12
-#define kSTimeWidth 6
-#define kETimeWidth 6
+#define kSTimeWidth 8
+#define kETimeWidth 8
 #define kTaskWidth 16
 #define kNotesWidth 16
 #define kSeparator ' '
@@ -65,7 +65,8 @@ public:
 		cout << "End time (hh:mm): ";
 		cin >> enty.endTime;
 		cout << "Task: ";
-		getline(cin, enty.task);
+		string ln = enty.task;
+		getline(std::cin, ln);
 		// cin >> enty.task;
 		cout << "Notes: ";
 		// cin >> enty.notes;
@@ -104,7 +105,9 @@ public:
 		numNewEntries = 0;
 	}
 
-
+	template<typename T> void coutElem(T t, int width) {
+		cout << left << setw(width) << setfill(' ') << t;
+	}
 	// void parsePrintEnty(string entyLine) {
 	// 	Entry enty;
 	// 	enty.date = entyLine.substr(3, 10);
@@ -115,18 +118,28 @@ public:
 	// 	enty.printEnty();
 	// }
 
+	void printHeader() {
+		cout << endl;
+		coutElem("Date:", kDateWidth);
+		coutElem("Start:", kSTimeWidth);
+		coutElem("End:", kETimeWidth);
+		coutElem("Task:", kTaskWidth);
+		coutElem("Notes:", kNotesWidth);
+		cout << endl << "-------------------------------------------------------";
+	}
+
 	void viewFile() {
 		string line;
+		printHeader();
 		fp.seekg(begin);
 		fp.clear();
-		while(!fp.eof()) {
-			getline(fp, line);
+		while(getline(fp, line)) {
 			if (fp.eof()) break;
 			string line2 = line.substr(2);
 			cout << line2 << endl;
-			// line = line.substr(3);
-			// cout << line << endl;
 		}
+		cout << endl << "-------------------------------------------------------";
+		cout << endl;
 		fp.seekg(begin);
 	}
 
@@ -163,9 +176,6 @@ private:
 
 	struct Entry{
 		
-		// template<typename T> void coutElem(T t, int width) {
-		// 	cout << left << setw(width) << setfill(' ') << t;
-		// }
 		
 		// void printEnty() {
 		// 	coutElem(date, kDateWidth);
